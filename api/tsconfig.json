@@ -3,12 +3,13 @@
       "target": "ES6",
       "module": "commonjs",
       "outDir": "./dist",
-      "rootDir": "api",
+      "rootDir": "./",
       "strict": true,
       "esModuleInterop": true
     },
     "include": [
-      "api/**/*.ts"
+      "./*.ts",
+      "./**/*.ts",
     ],
     "exclude": [
       "node_modules"
