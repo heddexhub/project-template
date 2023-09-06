@@ -10,9 +10,9 @@ import AppError from "./common/AppError";
 import { initializeMiddlewares } from "./middlewares";
 import { initializeRoutes } from "./routes";
 import errorHandler from "./middlewares/errorHandler";
-
+import globalEmitter from "./utils/eventEmitter";
 // SECTION: Cluster and CPU Information
-const numCPUs = os.cpus().length;
+const numCPUs : number = os.cpus().length;
 
 interface IClient {
   path: string;
@@ -48,7 +48,7 @@ if (cluster.isMaster) {
 } else {
   // SECTION: Worker Process
   const app = express();
-  const port = 3000;
+  const port : number = 3000;
   const api_url = "http://localhost";
 
   // SECTION: HTTP Server
@@ -60,11 +60,11 @@ if (cluster.isMaster) {
   const wss = new WebSocket.Server({ noServer: true });
 
   wss.on("connection", (ws, req) => {
-    const workerId = cluster.worker?.id ?? "unknown";
-    log("WebSocket", "success", `Worker ${cluster.worker?.id ?? "unknown"} : Client connected`);
+    const workerId : number | string = cluster.worker?.id ?? "unknown";
+    log("WebSocket", "success", `Worker ${workerId} : Client connected`);
 
     // Add new client to clients array
-    const client = { path: req.url ? req.url : "unknown_path", ws: ws };
+    const client : IClient = { path: req.url ? req.url : "unknown_path", ws: ws };
     clients.push(client);
 
     ws.on("message", message => {
@@ -79,7 +79,7 @@ if (cluster.isMaster) {
       log("WebSocket", "info", `Client disconnected`);
 
       // Remove the disconnected client from clients array
-      const index = clients.indexOf(client);
+      const index : number = clients.indexOf(client);
       if (index > -1) {
         clients.splice(index, 1);
       }
@@ -123,7 +123,7 @@ if (cluster.isMaster) {
           for (let [index, client] of clients.entries())
             if (client.ws.readyState == WebSocket.OPEN) {
               let dataTo = typedData.to;
-              let searchInDataTo;
+              let searchInDataTo: boolean; 
               let dataToIsArray = Array.isArray(dataTo);
               if (dataToIsArray) searchInDataTo = dataTo.indexOf(client.path) > -1;
               else searchInDataTo = dataTo.includes(client.path);
@@ -138,10 +138,10 @@ if (cluster.isMaster) {
           // Find disconnected clients
           // This section identifies clients that have disconnected and logs their paths
 
-          let disconnected = [];
-          let clients_paths = clients.map(c => c.path);
+          let disconnected : string[] = [];
+          const clients_paths : string[] = clients.map(c => c.path);
           if (typedData && typedData.to) {
-            for (let r of typedData.to) if (!clients_paths.includes(r)) disconnected.push(r);
+            for (const r of typedData.to) if (!clients_paths.includes(r)) disconnected.push(r);
             if (disconnected.length > 0) log("Worker", "info", `Disconnected clients: ${disconnected.join(", ")}`);
           }
         }
