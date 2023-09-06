@@ -1,18 +1,23 @@
 import cluster from "cluster";
 import os from "os";
 import express from "express";
-import { Request, Response, NextFunction } from "express";
 import http from "http";
 import WebSocket from "ws";
 import { log } from "./utils/logger";
 import moment from "moment";
-import AppError from "./common/AppError";
 import { initializeMiddlewares } from "./middlewares";
-import { initializeRoutes } from "./routes";
+import { initializeRoutes } from "./routes/v1";
 import errorHandler from "./middlewares/errorHandler";
 import globalEmitter from "./utils/eventEmitter";
-// SECTION: Cluster and CPU Information
-const numCPUs : number = os.cpus().length;
+import AppError from "./common/AppError";
+
+const requiredEnvironmentVariables: string[] = ["API_URL", "API_PORT"];
+for (const key of requiredEnvironmentVariables) {
+  if (!process.env[key]) throw new AppError(`Missing ENV variable ${key}`, 400);
+}
+
+  // SECTION: Cluster and CPU Information
+  const numCPUs: number = os.cpus().length;
 
 interface IClient {
   path: string;
@@ -48,8 +53,10 @@ if (cluster.isMaster) {
 } else {
   // SECTION: Worker Process
   const app = express();
-  const port : number = 3000;
-  const api_url = "http://localhost";
+  const API_PORT: string | undefined = process.env.API_PORT;
+
+  const API_URL: string | undefined = process.env.API_URL;
+  }
 
   // SECTION: HTTP Server
   const server = http.createServer(app);
@@ -60,11 +67,11 @@ if (cluster.isMaster) {
   const wss = new WebSocket.Server({ noServer: true });
 
   wss.on("connection", (ws, req) => {
-    const workerId : number | string = cluster.worker?.id ?? "unknown";
+    const workerId: number | string = cluster.worker?.id ?? "unknown";
     log("WebSocket", "success", `Worker ${workerId} : Client connected`);
 
     // Add new client to clients array
-    const client : IClient = { path: req.url ? req.url : "unknown_path", ws: ws };
+    const client: IClient = { path: req.url ? req.url : "unknown_path", ws: ws };
     clients.push(client);
 
     ws.on("message", message => {
@@ -79,7 +86,7 @@ if (cluster.isMaster) {
       log("WebSocket", "info", `Client disconnected`);
 
       // Remove the disconnected client from clients array
-      const index : number = clients.indexOf(client);
+      const index: number = clients.indexOf(client);
       if (index > -1) {
         clients.splice(index, 1);
       }
@@ -123,7 +130,7 @@ if (cluster.isMaster) {
           for (let [index, client] of clients.entries())
             if (client.ws.readyState == WebSocket.OPEN) {
               let dataTo = typedData.to;
-              let searchInDataTo: boolean; 
+              let searchInDataTo: boolean;
               let dataToIsArray = Array.isArray(dataTo);
               if (dataToIsArray) searchInDataTo = dataTo.indexOf(client.path) > -1;
               else searchInDataTo = dataTo.includes(client.path);
@@ -138,8 +145,8 @@ if (cluster.isMaster) {
           // Find disconnected clients
           // This section identifies clients that have disconnected and logs their paths
 
-          let disconnected : string[] = [];
-          const clients_paths : string[] = clients.map(c => c.path);
+          let disconnected: string[] = [];
+          const clients_paths: string[] = clients.map(c => c.path);
           if (typedData && typedData.to) {
             for (const r of typedData.to) if (!clients_paths.includes(r)) disconnected.push(r);
             if (disconnected.length > 0) log("Worker", "info", `Disconnected clients: ${disconnected.join(", ")}`);
@@ -154,7 +161,7 @@ if (cluster.isMaster) {
       }
     }
   });
-  globalEmitter.on("ws_message", (e : string | object) => {
+  globalEmitter.on("ws_message", (e: string | object) => {
     // Log the event using your custom log function
     log("WebSocket", "info", "WebSocket message event emitted.");
     // Send the event to the process
@@ -170,8 +177,8 @@ if (cluster.isMaster) {
   app.use(errorHandler);
 
   // SECTION: Start HTTP Server
-  server.listen(port, () => {
-    log("Worker", "success", `Worker ${process.pid} started : running at ${api_url}:${port}`);
+  server.listen(API_PORT, () => {
+    log("Worker", "success", `Worker ${process.pid} started : running at ${API_URL}`);
     process.send?.({
       type: "worker:started",
       message: `Worker ${process.pid} started`,
