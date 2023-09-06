@@ -64,7 +64,7 @@ if (cluster.isMaster) {
     log("WebSocket", "success", `Worker ${cluster.worker?.id ?? "unknown"} : Client connected`);
 
     // Add new client to clients array
-    const client = { path: req.url ? req.url : 'unknown_path', ws: ws };
+    const client = { path: req.url ? req.url : "unknown_path", ws: ws };
     clients.push(client);
 
     ws.on("message", message => {
@@ -154,7 +154,14 @@ if (cluster.isMaster) {
       }
     }
   });
-
+  globalEmitter.on("ws_message", (e : string | object) => {
+    // Log the event using your custom log function
+    log("WebSocket", "info", "WebSocket message event emitted.");
+    // Send the event to the process
+    if (process.send) {
+      process.send({ event: "ws_message", e });
+    }
+  });
   // SECTION: Middleware
   initializeMiddlewares(app);
   // SECTION: Routes
