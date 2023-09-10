@@ -3,8 +3,8 @@ import os from "os";
 import express from "express";
 import http from "http";
 import WebSocket from "ws";
-import { log } from "./utils/logger";
 import moment from "moment";
+import { log } from "./utils/logger";
 import { initializeMiddlewares } from "./middlewares";
 import { initializeRoutes } from "./routes/v1";
 import errorHandler from "./middlewares/errorHandler";
@@ -12,12 +12,11 @@ import globalEmitter from "./utils/eventEmitter";
 import AppError from "./common/AppError";
 
 const requiredEnvironmentVariables: string[] = ["API_URL", "API_PORT"];
-for (const key of requiredEnvironmentVariables) {
+for (const key of requiredEnvironmentVariables)
   if (!process.env[key]) throw new AppError(`Missing ENV variable ${key}`, 400);
-}
 
-  // SECTION: Cluster and CPU Information
-  const numCPUs: number = os.cpus().length;
+// SECTION: Cluster and CPU Information
+const numCPUs: number = os.cpus().length;
 
 interface IClient {
   path: string;
@@ -56,7 +55,6 @@ if (cluster.isMaster) {
   const API_PORT: string | undefined = process.env.API_PORT;
 
   const API_URL: string | undefined = process.env.API_URL;
-  }
 
   // SECTION: HTTP Server
   const server = http.createServer(app);
@@ -185,3 +183,4 @@ if (cluster.isMaster) {
     });
   });
 }
+

@@ -1,0 +1,57 @@
+version: "3.7"
+
+########################### SERVICES
+services:
+  ########################### API
+  api:
+    build:
+      context: ./api
+      dockerfile: Dockerfile-dev
+    container_name: node-api-service
+    working_dir: /app
+    environment:
+      NODE_ENV: development
+      MYSQL_DB_NAME: ${MYSQL_DB_NAME}
+      MYSQL_DB_PASSWORD: ${MYSQL_DB_PASSWORD}
+      MONGO_DB_USER: ${MONGO_DB_USER}
+      MONGO_DB_PASSWORD: ${MONGO_DB_PASSWORD}
+      MONGO_DB_NAME: ${MONGO_DB_NAME}
+      JWT_SECRET: ${JWT_SECRET}
+      API_URL: ${API_URL}
+      FRONT_URL: ${FRONT_URL}
+      MYSQL_DB_PORT: 3306
+      MONGO_DB_PORT: 27017
+      API_PORT: 3000
+      FRONT_PORT: 8080
+    command: nodemon --watch * app.js
+    ports:
+      - 3000:3000
+    volumes:
+      - ./api:/app
+    depends_on:
+      - mysql
+      - mongo
+
+  ########################### DB
+  mysql:
+    image: mysql:latest
+    container_name: mysql-db-service
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DB_NAME}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_DB_PASSWORD}
+    ports:
+      - 3306:3306
+    volumes:
+      - ./db_data:/var/lib/mysql
+
+  mongo:
+    image: mongo:latest
+    container_name: mongo-db-service
+    ports:
+      - 27017:27017
+    volumes:
+      - "./mongo_data:/data/db"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_DB_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_DB_PASSWORD}
+      MONGO_INITDB_DATABASE: ${MONGO_DB_NAME}

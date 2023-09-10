@@ -19,13 +19,11 @@ export const signIn = async (req: CustomRequest, res: CustomResponse, next: Cust
       if (isPasswordValid) {
         const token = generateToken(user.id);
         res.status(200).json({ token });
-      } else {
+      } else 
         next(new AppError("Invalid email or password", 401));
-      }
     } catch (error) {
       next(new AppError("Error during authentication", 500));
     }
-  } else {
+  } else 
     next(new AppError("Missing email or password", 400));
-  }
 };
