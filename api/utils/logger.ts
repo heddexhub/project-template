@@ -8,7 +8,7 @@ const error = chalk.hex("#eb0d0d");
 const info = chalk.hex("#0059ff");
 const text = chalk.hex("#bebebe");
 
-const master = chalk.hex("#FF5733");
+const master = chalk.hex("#33ffbd");
 const worker = chalk.hex("#C70039");
 const webSocket = chalk.hex("#900C3F");
 const http = chalk.hex("#581845");

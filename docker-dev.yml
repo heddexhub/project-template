@@ -11,6 +11,7 @@ services:
     working_dir: /usr/src/app
     environment:
       NODE_ENV: development
+      FORCE_COLOR: 1 # For chalk terminal coloring
       MYSQL_DB_NAME: ${MYSQL_DB_NAME}
       MYSQL_DB_PASSWORD: ${MYSQL_DB_PASSWORD}
       MONGO_DB_USER: ${MONGO_DB_USER}
