@@ -1,2 +1,4 @@
-mongo_data/
+
+node_modules/
 db_data/
+mongo_data/
