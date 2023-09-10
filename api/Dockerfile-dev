@@ -14,10 +14,6 @@ COPY package\*.json ./
 
 RUN npm install
 
-# Install type definitions
-
-# RUN npm install --save-dev @types/node @types/express @types/moment # Add other types as needed
-
 # For autorestart of server
 
 RUN npm install -g nodemon@2.0.18
