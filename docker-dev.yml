@@ -8,7 +8,7 @@ services:
       context: ./api
       dockerfile: Dockerfile-dev
     container_name: node-api-service
-    working_dir: /app
+    working_dir: /usr/src/app
     environment:
       NODE_ENV: development
       MYSQL_DB_NAME: ${MYSQL_DB_NAME}
@@ -23,11 +23,10 @@ services:
       MONGO_DB_PORT: 27017
       API_PORT: 3000
       FRONT_PORT: 8080
-    command: nodemon --watch * app.js
     ports:
       - 3000:3000
     volumes:
-      - ./api:/app
+      - ./api:/usr/src/app
     depends_on:
       - mysql
       - mongo

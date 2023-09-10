@@ -1,0 +1,43 @@
+# Use the official Node 18 image
+
+FROM node:18
+
+# Set the working directory
+
+WORKDIR /usr/src/app
+
+# Copy package.json and package-lock.json
+
+COPY package\*.json ./
+
+# Install dependencies
+
+RUN npm install
+
+# Install type definitions
+
+# RUN npm install --save-dev @types/node @types/express @types/moment # Add other types as needed
+
+# For autorestart of server
+
+RUN npm install -g nodemon@2.0.18
+
+# For TypeScript execution
+
+RUN npm install -g ts-node
+
+# For Testing
+
+RUN npm install -g jest
+
+# Copy the rest of the code
+
+COPY . .
+
+# Expose the port the app will run on
+
+EXPOSE 3000
+
+# Command to run the application
+
+CMD ["nodemon", "-x", "ts-node app.ts"]
