@@ -91,6 +91,7 @@ if (cluster.isMaster) {
     });
   });
 
+  
   server.on("upgrade", (request, socket, head) => {
     wss.handleUpgrade(request, socket, head, (ws, err) => {
       if (err instanceof Error) {

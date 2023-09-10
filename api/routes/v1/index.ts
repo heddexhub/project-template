@@ -13,5 +13,7 @@ export const initializeRoutes = (app: express.Application, ) => {
         next(new AppError("This is an operational error!", 400));
       }
     });
+
+    console.log("aaaaaaa")
   };
   
